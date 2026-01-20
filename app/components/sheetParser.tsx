@@ -29,7 +29,7 @@ export default function SheetParser(){
     const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault();
         fileData?.forEach((row) => {
-            const dept = (row as Record<string, unknown>)['Department'];
+            const dept = (row as Record<string, unknown>)['department'];
             if (typeof dept === 'string'){
                 setDepartmentList((prev) => new Set(prev).add(dept));
             }
@@ -45,7 +45,7 @@ export default function SheetParser(){
                 <button type="submit" onClick={handleButtonClick}>Parse Sheet</button>
             </form>
             <div>
-                {fileData && JSON.stringify((fileData as Record<string, unknown>[])[1]['Department'])}
+                {fileData && JSON.stringify((fileData as Record<string, unknown>[])[1]['department'])}
             </div>
             <div>
                 {departmentList && Array.from(departmentList).map((dept) => (
