@@ -8,10 +8,8 @@ export default function Home() {
           Phishing Awards Dashboard
         </h1>
         <h2 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-          <SheetParser />  
-          Some changes here
+          <SheetParser /> 
         </h2>
-        
       </main>
     </div>
   );
