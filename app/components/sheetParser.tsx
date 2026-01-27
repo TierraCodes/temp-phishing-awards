@@ -14,6 +14,8 @@ export default function SheetParser(){
     const [fileData, setFileData] = useState<unknown[] | null>(null);
     const [departmentList, setDepartmentList] = useState<Set<string>>();
     const [stats, setStats] = useState(null);
+    const [arrangedStats, setArrangedStats] = useState<any[]>([]);
+
 
     const [clickedScore, setClickedScore] = useState(0);
     const [sentInfoScore, setSentInfoScore] = useState(0);
@@ -90,16 +92,22 @@ export default function SheetParser(){
         console.log(results);
     }
 
-    const arrangeDataInAccendingOrder = () => {
-        const numList = [-23,-34,-100,-40,-12, 0];
-        const sortedList = numList.sort((a, b) => b - a);
-        console.log(`This IS It ${sortedList}`);
-    }
-    arrangeDataInAccendingOrder();
+    const rankingBasedOnScoreAndNormalization = () => {
+        if (!stats) return;
 
-    const arrangingStatsInDesendingOrder = () => {
-        // TODO
-    }
+        const updatedStats = Object.entries(stats).map(([department, items]) => ({
+            department,
+            ...items,
+            score: (items.clicked * clickedScore) + (items.sent * sentInfoScore),
+            normalization: ((items.clicked * clickedScore) + (items.sent * sentInfoScore)) / 100,
+        }));
+
+        const arrangedStats =  updatedStats.sort((a, b) => b.normalization - a.normalization);
+
+        setArrangedStats(arrangedStats);
+
+        // console.log(updatedStats);
+    };
 
     const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
         setClickedScore(Number(e.target.value));
@@ -111,6 +119,7 @@ export default function SheetParser(){
 
     const handleScoreFormAnalysis = (e: React.FormEvent) => {
         e.preventDefault();
+        rankingBasedOnScoreAndNormalization();
     };
 
 
@@ -159,9 +168,9 @@ export default function SheetParser(){
                             </tr>
                         </thead>
                         <tbody>
-                            {Object.entries(stats).map(([dept, count]) => {
-                                const typedCount = count as { reported: number; total: number; viewed: number; clicked: number; sent: number; none: number;};
-                                const Score = (typedCount.clicked * clickedScore) + (typedCount.sent * sentInfoScore);
+                            {Object.entries(arrangedStats).map(([dept, count]) => {
+                                const typedCount = count as { reported: number; total: number; viewed: number; clicked: number; sent: number; none: number; score: number; normalization: number};
+                                // const Score = (typedCount.clicked * clickedScore) + (typedCount.sent * sentInfoScore);
                                 return (
                                     <tr key={dept}>
                                         <td className="border p-2">{dept}</td>
@@ -173,8 +182,8 @@ export default function SheetParser(){
                                         <td className="border p-2 text-center">
                                             {((typedCount.reported / typedCount.total) * 100).toFixed(2)}%
                                         </td>
-                                        <td className="border p-2 text-center">{Score}</td>
-                                        <td className="border p-2 text-center">{(Score / typedCount.total) * 100}</td>
+                                        <td className="border p-2 text-center">{typedCount.score}</td>
+                                        <td className="border p-2 text-center">{typedCount.normalization}</td>
                                     </tr>
                                 );
                             })}
