@@ -107,25 +107,25 @@ export default function SheetParser(){
     arrangeDataInAccendingOrder();
 
     const arrangingStatsInDesendingOrder = () => {
-
+        // TODO
     }
 
-    const handleScoreChange = (e) =>{
-        setClickedScore(e.target.value);
+    const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
+        setClickedScore(Number(e.target.value));
     }
 
-    const handleSentChange = (e) =>{
-        setSentInfoScore(e.target.value);
+    const handleSentChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
+        setSentInfoScore(Number(e.target.value));
     }
 
-    const handleScoreFormAnalysis = (e) => {
+    const handleScoreFormAnalysis = (e: React.FormEvent) => {
         e.preventDefault();
         alert(`the clicked score is ${clickedScore} and the password score is ${sentInfoScore}`);
     };
 
 
     return(
-        <div className='text-black'>
+        <div>
             <form onSubmit={handleProcessData}>
                 <label htmlFor="sheetInput">Upload this month's spreadsheet:</label>
                 <input type="file" id="sheetInput" name="sheetInput" accept=".xlsx, .xls, .csv" onChange={handleFileUpload}/>
@@ -152,8 +152,8 @@ export default function SheetParser(){
             </div>
 
             {stats && (
-                <div className="mt-6">
-                    <h3 className="font-semibold mb-2">Department Stats:</h3>
+                <div>
+                    <h3>Department Stats:</h3>
                     <table className="min-w-full border">
                         <thead>
                             <tr className="bg-gray-100">
@@ -163,6 +163,7 @@ export default function SheetParser(){
                                 <th className="border p-2">Clicked</th>
                                 <th className="border p-2">Sent Info</th>
                                 <th className="border p-2">Reported</th>
+                                <th className="border p-2">Report Rate</th>
                                 <th className="border p-2">Score</th>
                                 <th className="border p-2">Normalization</th>
                             </tr>
