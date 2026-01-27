@@ -10,15 +10,6 @@ enum EventType {
     REPORT = 'Reported'
 }
 
-interface DeptStats {
-    total: number;
-    reported: number;
-    clicked: number;
-    sent: number;
-    viewed: number;
-    none: number;
-}
-
 export default function SheetParser(){
     const [fileData, setFileData] = useState<unknown[] | null>(null);
     const [departmentList, setDepartmentList] = useState<Set<string>>();
@@ -120,7 +111,6 @@ export default function SheetParser(){
 
     const handleScoreFormAnalysis = (e: React.FormEvent) => {
         e.preventDefault();
-        alert(`the clicked score is ${clickedScore} and the password score is ${sentInfoScore}`);
     };
 
 
@@ -129,7 +119,7 @@ export default function SheetParser(){
             <form onSubmit={handleProcessData}>
                 <label htmlFor="sheetInput">Upload this month's spreadsheet:</label>
                 <input type="file" id="sheetInput" name="sheetInput" accept=".xlsx, .xls, .csv" onChange={handleFileUpload}/>
-                <button type="submit" onClick={handleDownload}>Download Report</button>
+                {/* <button type="submit" onClick={handleDownload}>Download Report</button> */}
             </form>
             <div>
                 {departmentList && Array.from(departmentList).map((dept) => (
@@ -154,7 +144,7 @@ export default function SheetParser(){
             {stats && (
                 <div>
                     <h3>Department Stats:</h3>
-                    <table className="min-w-full border">
+                    <table >
                         <thead>
                             <tr className="bg-gray-100">
                                 <th className="border p-2">Department</th>
