@@ -109,6 +109,9 @@ export default function SheetParser(){
         // console.log(updatedStats);
     };
 
+    console.log(`Hello here ${arrangedStats}`);
+    console.log(stats);
+
     const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
         setClickedScore(Number(e.target.value));
     }
@@ -168,7 +171,7 @@ export default function SheetParser(){
                             </tr>
                         </thead>
                         <tbody>
-                            {Object.entries(arrangedStats).map(([dept, count]) => {
+                            {Object.entries(stats).map(([dept, count]) => {
                                 const typedCount = count as { reported: number; total: number; viewed: number; clicked: number; sent: number; none: number; score: number; normalization: number};
                                 // const Score = (typedCount.clicked * clickedScore) + (typedCount.sent * sentInfoScore);
                                 return (
