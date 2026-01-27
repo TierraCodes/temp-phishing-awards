@@ -10,6 +10,15 @@ enum EventType {
     REPORT = 'Reported'
 }
 
+interface DeptStats {
+    total: number;
+    reported: number;
+    clicked: number;
+    sent: number;
+    viewed: number;
+    none: number;
+}
+
 export default function SheetParser(){
     const [fileData, setFileData] = useState<unknown[] | null>(null);
     const [departmentList, setDepartmentList] = useState<Set<string>>();
@@ -28,7 +37,7 @@ export default function SheetParser(){
                   return
                 }
                 const data = e.target.result;
-                const workbook = xlsx.read(data, {type: 'binary'});
+                const workbook = xlsx.read(data, {type: 'buffer'});
 
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
@@ -40,16 +49,28 @@ export default function SheetParser(){
             fileReader.readAsArrayBuffer(file)
         }
     }
-    const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        event.preventDefault();
-        fileData?.forEach((row) => {
-            const dept = (row as Record<string, unknown>)['department'];
-            if (typeof dept === 'string'){
-                setDepartmentList((prev) => new Set(prev).add(dept));
-            }
-        })
-        console.log(departmentList);
+    const handleDownload = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        // event.preventDefault();
+        // fileData?.forEach((row) => {
+        //     const dept = (row as Record<string, unknown>)['department'];
+        //     if (typeof dept === 'string'){
+        //         setDepartmentList((prev) => new Set(prev).add(dept));
+        //     }
+        // })
+        // console.log(departmentList);
     }
+    const handleProcessData = (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!fileData) return;
+
+        const depts = new Set<string>();
+        fileData.forEach((row) => {
+            const typedRow = row as Record<string, unknown>;
+            if (typedRow.department) depts.add(String(typedRow.department));
+        });
+        
+        setDepartmentList(depts);
+    };
 
     const calculateWinners = (data: any[]) => {
         const results = data.reduce((acc, row) => {
@@ -59,28 +80,20 @@ export default function SheetParser(){
             const actionType = Object.values(EventType).find(val => val === actionValue);
 
             if (!acc[dept]) {
-                acc[dept] = { total: 0, reported: 0, clicked: 0, sent: 0, view: 0, none: 0 };
+                acc[dept] = { total: 0, reported: 0, clicked: 0, sent: 0, viewed: 0, none: 0 };
             }
 
             acc[dept].total += 1;
-            if (actionType === EventType.REPORT) {
-                acc[dept].reported += 1;
-            } 
-            if (actionType === EventType.CLICK) {
-                acc[dept].clicked += 1;
-            } 
-            if (actionType === EventType.SENT) {
-                acc[dept].sent += 1;
-            } 
-            if (actionType === EventType.VIEW) {
-                acc[dept].view += 1;
-            } 
-            if (actionType === EventType.NONE) {
-                acc[dept].none += 1;
-            }
+            if (actionType === EventType.REPORT) { acc[dept].reported += 1 } 
+            if (actionType === EventType.CLICK) { acc[dept].clicked += 1 } 
+            if (actionType === EventType.SENT) { acc[dept].sent += 1 } 
+            if (actionType === EventType.VIEW) { acc[dept].viewed += 1 } 
+            if (actionType === EventType.NONE) { acc[dept].none += 1 }
 
             return acc;
+
         }, {});
+
         setStats(results);
 
         console.log(results);
@@ -112,11 +125,11 @@ export default function SheetParser(){
 
 
     return(
-        <div className="text-black">
-            <form action="">
-                <label htmlFor="sheetInput">Upload this months spreadsheet:</label>
+        <div className='text-black'>
+            <form onSubmit={handleProcessData}>
+                <label htmlFor="sheetInput">Upload this month's spreadsheet:</label>
                 <input type="file" id="sheetInput" name="sheetInput" accept=".xlsx, .xls, .csv" onChange={handleFileUpload}/>
-                <button type="submit" onClick={handleButtonClick}>Parse Sheet</button>
+                <button type="submit" onClick={handleDownload}>Download Report</button>
             </form>
             <div>
                 {departmentList && Array.from(departmentList).map((dept) => (
@@ -145,12 +158,11 @@ export default function SheetParser(){
                         <thead>
                             <tr className="bg-gray-100">
                                 <th className="border p-2">Department</th>
+                                <th className="border p-2">Total</th>
                                 <th className="border p-2">Viewed</th>
                                 <th className="border p-2">Clicked</th>
                                 <th className="border p-2">Sent Info</th>
                                 <th className="border p-2">Reported</th>
-                                <th className="border p-2">Total</th>
-                                <th className="border p-2">Rate</th>
                                 <th className="border p-2">Score</th>
                                 <th className="border p-2">Normalization</th>
                             </tr>
@@ -162,11 +174,11 @@ export default function SheetParser(){
                                 return (
                                     <tr key={dept}>
                                         <td className="border p-2">{dept}</td>
+                                        <td className="border p-2 text-center">{typedCount.total}</td>
                                         <td className="border p-2 text-center">{typedCount.viewed}</td>
                                         <td className="border p-2 text-center">{typedCount.clicked}</td>
                                         <td className="border p-2 text-center">{typedCount.sent}</td>
                                         <td className="border p-2 text-center">{typedCount.reported}</td>
-                                        <td className="border p-2 text-center">{typedCount.total}</td>
                                         <td className="border p-2 text-center">
                                             {((typedCount.reported / typedCount.total) * 100).toFixed(2)}%
                                         </td>
