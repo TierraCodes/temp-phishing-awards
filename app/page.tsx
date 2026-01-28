@@ -8,7 +8,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-zinc-900 mb-8">
           Phishing Awards Dashboard
         </h1>
-        <h2 className="text-2xl font-semibold text-[#000000] dark:text-zinc-100 mb-4">
+        <h2 className="text-2xl font-semibold text-[#000000] mb-4">
           <SheetParser />
         </h2>
 

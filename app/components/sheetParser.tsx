@@ -10,11 +10,25 @@ enum EventType {
     REPORT = 'Reported'
 }
 
+type DepartmentStats = {
+    total: number;
+    reported: number;
+    clicked: number;
+    sent: number;
+    viewed: number;
+    none: number;
+}
+
+type DepartmentStatsWithScore = DepartmentStats & {
+    score: number;
+    normalization: number;
+}
+
 export default function SheetParser(){
     const [fileData, setFileData] = useState<unknown[] | null>(null);
     const [departmentList, setDepartmentList] = useState<Set<string>>();
-    const [stats, setStats] = useState(null);
-    const [arrangedStats, setArrangedStats] = useState<any[]>([]);
+    const [stats, setStats] = useState<Record<string, DepartmentStats> | null>(null);
+    const [arrangedStats, setArrangedStats] = useState<DepartmentStatsWithScore[]>([]);
 
 
     const [clickedScore, setClickedScore] = useState(0);
@@ -95,7 +109,7 @@ export default function SheetParser(){
     const rankingBasedOnScoreAndNormalization = () => {
         if (!stats) return;
 
-        const updatedStats = Object.entries(stats).map(([department, items]) => ({
+        const updatedStats: DepartmentStatsWithScore[] = Object.entries(stats).map(([department, items]) => ({
             department,
             ...items,
             score: (items.clicked * clickedScore) + (items.sent * sentInfoScore),
@@ -105,12 +119,7 @@ export default function SheetParser(){
         const arrangedStats =  updatedStats.sort((a, b) => b.normalization - a.normalization);
 
         setArrangedStats(arrangedStats);
-
-        // console.log(updatedStats);
     };
-
-    console.log(`Hello here ${arrangedStats}`);
-    console.log(stats);
 
     const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
         setClickedScore(Number(e.target.value));
@@ -171,12 +180,12 @@ export default function SheetParser(){
                             </tr>
                         </thead>
                         <tbody>
-                            {Object.entries(stats).map(([dept, count]) => {
-                                const typedCount = count as { reported: number; total: number; viewed: number; clicked: number; sent: number; none: number; score: number; normalization: number};
+                            {Object.entries(arrangedStats).map(([dept, count]) => {
+                                const typedCount = count as { department: string; reported: number; total: number; viewed: number; clicked: number; sent: number; none: number; score: number; normalization: number};
                                 // const Score = (typedCount.clicked * clickedScore) + (typedCount.sent * sentInfoScore);
                                 return (
                                     <tr key={dept}>
-                                        <td className="border p-2">{dept}</td>
+                                        <td className="border p-2">{typedCount.department}</td>
                                         <td className="border p-2 text-center">{typedCount.total}</td>
                                         <td className="border p-2 text-center">{typedCount.viewed}</td>
                                         <td className="border p-2 text-center">{typedCount.clicked}</td>
