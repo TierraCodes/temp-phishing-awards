@@ -121,6 +121,8 @@ export default function SheetParser(){
         setArrangedStats(arrangedStats);
     };
 
+    console.log(arrangedStats);
+
     const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
         setClickedScore(Number(e.target.value));
     }
