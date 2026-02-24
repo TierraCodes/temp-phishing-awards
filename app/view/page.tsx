@@ -17,7 +17,7 @@ import * as xlsx from "xlsx";
 
 
 interface Column {
-    id: 'department' | 'total' | 'viewed' | 'clicked' | 'sent' | 'reported' | 'password' | 'score' | 'rank';
+    id: 'department' | 'total' | 'clicked' | 'reported' | 'phished' | 'rank';
     label: string;
     minWidth?: number;
     align?: 'right';
@@ -27,22 +27,24 @@ interface Column {
 const columns: readonly Column[] = [
     { id: "department", label: "Department", minWidth: 170 },
     { id: "total", label: "Total", minWidth: 80 },
-    { id: "viewed", label: "Viewed", minWidth: 80 },
-    { id: "sent", label: "Sent Info", minWidth: 100 },
+    // { id: "viewed", label: "Viewed", minWidth: 80 },
+    // { id: "sent", label: "Sent Info", minWidth: 100 },
     { id: "reported", label: "Reported", minWidth: 90 },
     { id: "clicked", label: "Clicked", minWidth: 80 },
-    { id: "password", label: "Password", minWidth: 100 },
-    { id: "score", label: "Score", minWidth: 80 },
+    { id: "phished", label: "Phished", minWidth: 100 },
+    // { id: "score", label: "Score", minWidth: 80 },
     { id: "rank", label: "Rank", minWidth: 70 },
 ];
 
 enum EventType {
     NONE = 'No Action',
-    VIEW = 'Email View',
+    // VIEW = 'Email View',
     CLICK = 'Email Click',
-    SENT = 'TM Sent',
-    REPORT = 'Reported'
+    // SENT = 'TM Sent',
+    REPORT = 'Reported',
+    Phished = 'Data Submission'
 }
+// Data Submission
 
 type DepartmentStats = {
     total: number;
@@ -51,12 +53,12 @@ type DepartmentStats = {
     sent: number;
     viewed: number;
     none: number;
+    phished: number;
 }
 
 type DepartmentStatsWithScore = DepartmentStats & {
     department: string;
-    password: number;
-    score: number;
+    // score: number;
     rank: number;
 }
 
@@ -71,8 +73,8 @@ export default function Page() {
     const [rowsPerPageSmall, setRowsPerPageSmall] = useState(10);
 
     const [clickedPointValue, setClickedPointValue] = useState(-100);
-    const [sentInfoPointValue, setSentInfoPointValue] = useState(-100);
-    const [passwordPointValue, setPasswordPointValue] = useState(-100);
+    // const [sentInfoPointValue, setSentInfoPointValue] = useState(-100);
+    const [phishedPointValue, setPhishedPointValue] = useState(-100);
     const [reportedPointValue, setReportedPointValue] = useState(0);
 
     const [largeDepartmentRange, setLargeDepartmentRange] = useState<number[]>([0, 5]);
@@ -122,11 +124,11 @@ export default function Page() {
         }
     }
 
-    if (fileData){
-        console.log("hello world")
-    } else{
-        console.log("hello world2")
-    }
+    // if (fileData){
+    //     console.log("hello world")
+    // } else{
+    //     console.log("hello world2")
+    // }
 
     const handleProcessData = (event: React.FormEvent) => {
         event.preventDefault();
@@ -148,15 +150,17 @@ export default function Page() {
             const actionType = Object.values(EventType).find(val => val === actionValue);
 
             if (!acc[dept]) {
-                acc[dept] = { total: 0, reported: 0, clicked: 0, sent: 0, viewed: 0, none: 0 };
+                acc[dept] = { total: 0, reported: 0, clicked: 0, none: 0, phished: 0 };
+                // sent: 0, viewed: 0,
             }
 
             acc[dept].total += 1;
             if (actionType === EventType.REPORT) { acc[dept].reported += 1 }
             if (actionType === EventType.CLICK) { acc[dept].clicked += 1 }
-            if (actionType === EventType.SENT) { acc[dept].sent += 1 }
-            if (actionType === EventType.VIEW) { acc[dept].viewed += 1 }
+            // if (actionType === EventType.SENT) { acc[dept].sent += 1 }
+            // if (actionType === EventType.VIEW) { acc[dept].viewed += 1 }
             if (actionType === EventType.NONE) { acc[dept].none += 1 }
+            if (actionType === EventType.Phished) { acc[dept].phished += 1 }
 
             return acc;
 
@@ -173,9 +177,8 @@ export default function Page() {
         const updatedStats: DepartmentStatsWithScore[] = Object.entries(stats).map(([department, items]) => ({
             department,
             ...items,
-            password: 0,
-            score: (items.clicked * clickedPointValue) + (items.sent * sentInfoPointValue) + (items.reported * reportedPointValue),
-            rank: ((items.clicked * clickedPointValue) + (items.sent * sentInfoPointValue) + (items.reported * reportedPointValue)) / 100,
+            // score: (items.clicked * clickedPointValue) + (items.reported * reportedPointValue) + (items.phished * phishedPointValue),
+            rank: ((items.clicked * clickedPointValue) + (items.reported * reportedPointValue) + (items.phished * phishedPointValue)) / 100,
         }));
 
         const arrangedStats =  updatedStats.sort((a, b) => b.rank - a.rank);
@@ -430,20 +433,20 @@ export default function Page() {
                             <input type="range" min={-100} max={0} step={1} value={clickedPointValue} onChange={(event) => setClickedPointValue(Number(event.target.value))} className="w-full h-[20%] rounded-xl hover:cursor-pointer accent-[#137FEC]" />
                         </div>
 
-                        <div className="flex flex-col gap-1 md:gap-3 lg:gap-5">
-                            <div className="flex flex-row justify-between items-center">
-                                <h3 className="text-[#F6F7F8] text-sm md:text-md lg:text-lg font-semibold">Sent Info Point</h3>
-                                <span className="text-sm font-bold text-[#137FEC] bg-[#193759] px-[0.4rem] py-[0.08rem] rounded-sm">{sentInfoPointValue}</span>
-                            </div>
-                            <input type="range" min={-100} max={0} step={1} value={sentInfoPointValue} onChange={(event) => setSentInfoPointValue(Number(event.target.value))} className="w-full h-[20%] rounded-xl hover:cursor-pointer accent-[#137FEC]" />
-                        </div>
+                        {/*<div className="flex flex-col gap-1 md:gap-3 lg:gap-5">*/}
+                        {/*    <div className="flex flex-row justify-between items-center">*/}
+                        {/*        <h3 className="text-[#F6F7F8] text-sm md:text-md lg:text-lg font-semibold">Sent Info Point</h3>*/}
+                        {/*        <span className="text-sm font-bold text-[#137FEC] bg-[#193759] px-[0.4rem] py-[0.08rem] rounded-sm">{sentInfoPointValue}</span>*/}
+                        {/*    </div>*/}
+                        {/*    <input type="range" min={-100} max={0} step={1} value={sentInfoPointValue} onChange={(event) => setSentInfoPointValue(Number(event.target.value))} className="w-full h-[20%] rounded-xl hover:cursor-pointer accent-[#137FEC]" />*/}
+                        {/*</div>*/}
 
                         <div className="flex flex-col gap-1 md:gap-3 lg:gap-5">
                             <div className="flex flex-row justify-between items-center">
-                                <h3 className="text-[#F6F7F8] text-sm md:text-md lg:text-lg font-semibold">Password Point</h3>
-                                <span className="text-sm font-bold text-[#137FEC] bg-[#193759] px-[0.4rem] py-[0.08rem] rounded-sm">{passwordPointValue}</span>
+                                <h3 className="text-[#F6F7F8] text-sm md:text-md lg:text-lg font-semibold">Phished Point</h3>
+                                <span className="text-sm font-bold text-[#137FEC] bg-[#193759] px-[0.4rem] py-[0.08rem] rounded-sm">{phishedPointValue}</span>
                             </div>
-                            <input type="range" min={-100} max={0} step={1} value={passwordPointValue} onChange={(event) => setPasswordPointValue(Number(event.target.value))} className="w-full h-[20%] rounded-xl hover:cursor-pointer accent-[#137FEC]" />
+                            <input type="range" min={-100} max={0} step={1} value={phishedPointValue} onChange={(event) => setPhishedPointValue(Number(event.target.value))} className="w-full h-[20%] rounded-xl hover:cursor-pointer accent-[#137FEC]" />
                         </div>
 
                         <div className="flex flex-col gap-1 md:gap-3 lg:gap-5">
