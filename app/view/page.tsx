@@ -63,14 +63,14 @@ type DepartmentStatsWithScore = DepartmentStats & {
 }
 
 export default function Page() {
-    const [pageLarge, setPageLarge] = useState(0);
-    const [rowsPerPageLarge, setRowsPerPageLarge] = useState(10);
-
-    const [pageMedium, setPageMedium] = useState(0);
-    const [rowsPerPageMedium, setRowsPerPageMedium] = useState(10);
-
-    const [pageSmall, setPageSmall] = useState(0);
-    const [rowsPerPageSmall, setRowsPerPageSmall] = useState(10);
+    // const [pageLarge, setPageLarge] = useState(0);
+    // const [rowsPerPageLarge, setRowsPerPageLarge] = useState(10);
+    //
+    // const [pageMedium, setPageMedium] = useState(0);
+    // const [rowsPerPageMedium, setRowsPerPageMedium] = useState(10);
+    //
+    // const [pageSmall, setPageSmall] = useState(0);
+    // const [rowsPerPageSmall, setRowsPerPageSmall] = useState(10);
 
     const [clickedPointValue, setClickedPointValue] = useState(-100);
     // const [sentInfoPointValue, setSentInfoPointValue] = useState(-100);
